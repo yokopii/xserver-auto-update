@@ -1,0 +1,29 @@
+PCからSFTPでつなぐとき、コマンドプロンプトから以下を入力
+sftp -i C:\Users\yokop\Desktop\OracleCloudI\秘密鍵\ssh-key-2025-09-19.pem opc@168.138.53.18
+
+
+[ここからはVPS上のもの]-----------------------------------------------------------------------
+
+#環境ログイン
+source ~/myenv/bin/activate
+
+#キャッシュクリア
+sudo dnf clean all
+sudo dnf makecache
+sudo dnf install libXScrnSaver
+
+#Cront動いてるか？
+sudo grep opc /var/log/cron
+
+# memory状況
+free -h 
+
+ps aux | grep rpm
+
+sudo dnf install -y libX11
+sudo dnf install -y libXcomposite
+sudo dnf install -y libXcursor
+sudo dnf install -y libXdamage
+sudo dnf install -y libXext
+sudo dnf install -y libXi
+sudo dnf install -y libXtst
