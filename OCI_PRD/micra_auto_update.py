@@ -40,7 +40,8 @@ def main():
         #Logging設定
         logging.basicConfig(
             filename=LOG_CONFIG["log_file_path"],
-            format="%(asctime)s [%(levelname)s] %(message)s"
+            format="%(asctime)s [%(levelname)s] %(message)s",
+            datefmt='%Y-%m-%d %H:%M:%S',
         )
 
         #driver初期セットアップ
@@ -54,7 +55,6 @@ def main():
 
         #サーバー残り時間が24時間を切っていれば更新する
         extend_server(driver, remining_time)
-
         
     except Exception as e:
         msg = f"main処理中に例外が発生しました: {str(e)}"
@@ -65,8 +65,10 @@ def main():
             if driver:
                 driver.close()
                 #driver.quit()  #ハングするから禁止(使っちゃダメ)
+                return ""
         except Exception as e:
-            print(f"driver shutdown failed: {e}")
+            msg = f"driver shutdown failed: {e}"
+            output_log(msg, logging.ERROR)
 
 ##########################################
 # Driver設定
@@ -261,19 +263,18 @@ def extend_server(argDriver, argRemining_time):
             time.sleep(5)
 
             # bodyタグのテキストをすべて取得
-            body_text = argDriver.find_element(By.TAG_NAME, "body").text
+            #body_text = argDriver.find_element(By.TAG_NAME, "body").text
             
             #延長更新後の残時間を取得
             updated_remining_time = get_remaining_time(argDriver)
 
             #正常終了メール送信
             send_notify_mail(f"更新完了[残:]{updated_remining_time['total_hours']}",f"更新処理が完了して {updated_remining_time['total_hours']} 時間になりました。")
-
-            return updated_remining_time
         
         else:
-            output_log(f"24時間切っていないので処理を終了します[残:{argRemining_time['total_hours']}]")
-            send_notify_mail(f"24時間切ってないので正常終了[残:{argRemining_time['total_hours']}]","24時間切っていないので処理を正常終了します")
+            output_log(f"24時間切っていないので処理を終了します。残:{argRemining_time['total_hours']}")
+            send_notify_mail(f"残が24時間以上あるので正常終了  残:{argRemining_time['total_hours']}","正常終了")
+            output_log(f"メールとばしたよ")
 
     except Exception as e:
         output_log(f"extend_server内で例外が発生しました: {str(e)}", logging.ERROR)
@@ -281,7 +282,6 @@ def extend_server(argDriver, argRemining_time):
             "更新処理中にエラー発生",
             f"XServer契約延長処理中に例外が発生しました。\n詳細: {str(e)}"
         )
-        return ""
 
 ##########################################
 # メール送信
